@@ -23,9 +23,6 @@ nodes:
   - containerPort: 443
     hostPort: 443
     protocol: TCP
-  - containerPort: 4566
-    hostPort: 4566
-    protocol: TCP
   extraMounts:
   # Mount the docker socket from the host machine to the kind node
   - hostPath: /var/run/docker.sock

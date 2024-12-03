@@ -8,7 +8,7 @@ env:
   AWS_SECRET_ACCESS_KEY: localstack
 
 jobs:
-  provision:
+  ci:
     runs-on: ubuntu-latest
 
     services:
