@@ -1,0 +1,79 @@
+name: crossplane-argocd
+
+on: [push]
+
+env:
+  AWS_DEFAULT_REGION: us-east-1
+  AWS_ACCESS_KEY_ID: localstack
+  AWS_SECRET_ACCESS_KEY: localstack
+
+jobs:
+  provision:
+    runs-on: ubuntu-latest
+
+    services:
+      localstack:
+        image: localstack/localstack
+        ports:
+          - 4566:4566
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spin up kind
+        run: |          
+          echo "--- Create kind cluster"
+          kind create cluster --config kind/config.yaml
+
+          echo "--- Let's try to access our kind cluster via kubectl"
+          kubectl get nodes
+
+      - name: Install ArgoCD into kind
+        run: |
+          echo " Install & configure ArgoCD via Kustomize - see https://stackoverflow.com/a/71692892/4964553"
+          kubectl apply -k argocd/install
+          
+          echo "--- Wait for Argo to become ready"
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server --namespace argocd --timeout=300s
+
+      - name: Prepare crossplane AWS Secret
+        run: |
+          echo "--- Create aws-creds.conf file"
+          echo "[default]
+          aws_access_key_id = $AWS_ACCESS_KEY_ID
+          aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+          " > aws-creds.conf
+          
+          echo "--- Create a namespace for crossplane"
+          kubectl create namespace crossplane-system
+
+          echo "--- Create AWS Provider secret"
+          kubectl create secret generic aws-creds -n crossplane-system --from-file=creds=./aws-creds.conf
+
+      - name: Prepare Secret with ArgoCD API Token for Crossplane ArgoCD Provider
+        run: |
+          echo "--- Access the ArgoCD server with a port-forward in the background, see https://stackoverflow.com/a/72983554/4964553"
+          kubectl port-forward -n argocd --address='0.0.0.0' service/argocd-server 8443:443 &
+          
+          echo "--- Wait shortly to let the port forward come available"
+          sleep 1
+
+          bash create-argocd-api-token-secret.sh
+
+      - name: Use ArgoCD's AppOfApps pattern to deploy all Crossplane components
+        run: |
+          echo "--- Let Argo do it's magic installing all Crossplane components"
+          kubectl apply -n argocd -f argocd/crossplane-bootstrap.yaml 
+
+      - name: Check crossplane status
+        run: |
+          echo "--- Wait for crossplane to become ready (now prefaced with until as described in https://stackoverflow.com/questions/68226288/kubectl-wait-not-working-for-creation-of-resources)"
+          until kubectl wait --for=condition=PodScheduled pod -l app=crossplane --namespace crossplane-system --timeout=120s > /dev/null 2>&1; do : ; done
+          kubectl wait --for=condition=ready pod -l app=crossplane --namespace crossplane-system --timeout=120s
+
+          echo "--- Wait until AWS Provider is up and running (now prefaced with until to prevent Error from server (NotFound): providers.pkg.crossplane.io 'upbound-provider-aws-s3' not found)"
+          until kubectl get provider/upbound-provider-aws-s3 > /dev/null 2>&1; do : ; done
+          kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
+
+          kubectl get all -n crossplane-system
