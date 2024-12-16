@@ -27,6 +27,12 @@ jobs:
           kind create cluster --config kind/config.yaml
           kubectl get nodes
 
+      - name: Connect localstack to the cluster network
+        run: |
+          docker network ls
+          # Hack:
+          #docker network connect "kind" "localstack"
+
       - name: Install ArgoCD into kind
         run: |
           echo " Install & configure ArgoCD via Kustomize - see https://stackoverflow.com/a/71692892/4964553"
