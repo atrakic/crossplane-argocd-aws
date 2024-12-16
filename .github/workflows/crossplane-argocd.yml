@@ -81,3 +81,11 @@ jobs:
           export AWS_ENDPOINT_URL=http://localhost:4566
           aws sts get-caller-identity
           aws s3 ls
+
+      - name: Debug failure
+        if: failure()
+        run: |
+          helm list -A
+          kubectl get all,cm,sa -A
+          kubectl get events --sort-by='.metadata.creationTimestamp' -A
+          kubectl -n argocd logs --selector app.kubernetes.io/name=argocd-application-controller
