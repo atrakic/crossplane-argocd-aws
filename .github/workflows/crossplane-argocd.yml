@@ -79,7 +79,7 @@ jobs:
         run: |
           kubectl get providers
           kubectl get managed || true
-          kubectl get buckets -n crossplane-system -o yaml
+          kubectl get buckets
 
       - name: AWS-cli status
         run: |
