@@ -27,11 +27,13 @@ jobs:
           kind create cluster --config kind/config.yaml
           kubectl get nodes
 
-      - name: Connect localstack to the cluster network
+      # disabled
+      - name: Spin up localstack with helm
+        if: false
         run: |
-          docker network ls
-          # Hack:
-          #docker network connect "kind" "localstack"
+          helm repo add crossplane-stable https://charts.crossplane.io/stable
+          helm repo update
+          helm install crossplane crossplane-stable/crossplane --namespace crossplane-system --create-namespace
 
       - name: Install ArgoCD into kind
         run: |
@@ -47,8 +49,13 @@ jobs:
           echo "[default]
           aws_access_key_id = $AWS_ACCESS_KEY_ID
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
-          # Hack: access gh-actions service container:
-          endpoint_url = http://localstack:4567
+          # Access gh-actions service container:
+          endpoint_url = http://localstack:4566
+          #endpoint_url = http://host.docker.internal:4566
+          skip_credentials_validation: true
+          skip_metadata_api_check: true
+          skip_requesting_account_id: true
+          s3_use_path_style: true
           " > aws-creds.conf
 
           echo "--- Create a namespace for crossplane"
@@ -82,7 +89,7 @@ jobs:
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
           kubectl get all -n crossplane-system
-          
+
       - name: Get crossplane resources
         run: |
           kubectl get providers
@@ -95,7 +102,9 @@ jobs:
           export AWS_CONFIG_FILE=./aws-creds.conf
           export AWS_ENDPOINT_URL=http://localhost:4566
           aws sts get-caller-identity
-          aws s3 ls
+          aws s3api list-buckets
+          # aws iam create-user --user-name dev
+          # aws iam attach-user-policy --user-name dev --policy-arn=arn:aws:iam::aws:policy/AmazonEC2FullAccess
 
       - name: Debug failure
         if: failure()
