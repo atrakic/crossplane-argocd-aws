@@ -7,5 +7,6 @@ spec:
     source: Secret
     secretRef:
       namespace: crossplane-system
+      # created manually (see ci):
       name: aws-creds
       key: creds

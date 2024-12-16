@@ -5,6 +5,14 @@ brew "kubectl"
 brew "kind"
 
 # Kubernetes tools
-brew "argocd"
+brew "yq"
+brew "jq"
 brew "helm"
 brew "kustomize"
+brew "stern"
+
+# Argo
+#brew "argocd"
+
+# Utils
+brew "awscli"

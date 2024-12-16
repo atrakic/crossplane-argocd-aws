@@ -18,7 +18,7 @@ spec:
     blockPublicPolicy: false
     ignorePublicAcls: false
     restrictPublicBuckets: false
-    bucketRef: 
+    bucketRef:
       name: crossplane-argocd-s3-bucket
     region: us-east-1
 ---
@@ -30,7 +30,7 @@ spec:
   forProvider:
     rule:
       - objectOwnership: ObjectWriter
-    bucketRef: 
+    bucketRef:
       name: crossplane-argocd-s3-bucket
     region: us-east-1
 ---
@@ -41,7 +41,7 @@ metadata:
 spec:
   forProvider:
     acl: "public-read"
-    bucketRef: 
+    bucketRef:
       name: crossplane-argocd-s3-bucket
     region: us-east-1
 ---
@@ -53,6 +53,6 @@ spec:
   forProvider:
     indexDocument:
       - suffix: index.html
-    bucketRef: 
+    bucketRef:
       name: crossplane-argocd-s3-bucket
     region: us-east-1

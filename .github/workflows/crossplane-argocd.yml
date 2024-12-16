@@ -21,19 +21,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Spin up kind
-        run: |          
-          echo "--- Create kind cluster"
+      - name: Spin up kinD
+        run: |
           kind create cluster --config kind/config.yaml
-
-          echo "--- Let's try to access our kind cluster via kubectl"
           kubectl get nodes
 
       - name: Install ArgoCD into kind
         run: |
           echo " Install & configure ArgoCD via Kustomize - see https://stackoverflow.com/a/71692892/4964553"
           kubectl apply -k argocd/install
-          
+
           echo "--- Wait for Argo to become ready"
           kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=argocd-server --namespace argocd --timeout=300s
 
@@ -44,7 +41,7 @@ jobs:
           aws_access_key_id = $AWS_ACCESS_KEY_ID
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
           " > aws-creds.conf
-          
+
           echo "--- Create a namespace for crossplane"
           kubectl create namespace crossplane-system
 
@@ -55,7 +52,7 @@ jobs:
         run: |
           echo "--- Access the ArgoCD server with a port-forward in the background, see https://stackoverflow.com/a/72983554/4964553"
           kubectl port-forward -n argocd --address='0.0.0.0' service/argocd-server 8443:443 &
-          
+
           echo "--- Wait shortly to let the port forward come available"
           sleep 1
 
@@ -63,8 +60,7 @@ jobs:
 
       - name: Use ArgoCD's AppOfApps pattern to deploy all Crossplane components
         run: |
-          echo "--- Let Argo do it's magic installing all Crossplane components"
-          kubectl apply -n argocd -f argocd/crossplane-bootstrap.yaml 
+          kubectl apply -n argocd -f argocd/crossplane-bootstrap.yaml
 
       - name: Check crossplane status
         run: |
@@ -77,3 +73,11 @@ jobs:
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
           kubectl get all -n crossplane-system
+
+      - name: AWS-cli status
+        run: |
+          export AWS_PAGER=""
+          export AWS_CONFIG_FILE=./aws-creds.conf
+          export AWS_ENDPOINT_URL=http://localhost:4566
+          aws sts get-caller-identity
+          aws s3 ls

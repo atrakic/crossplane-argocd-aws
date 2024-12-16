@@ -17,4 +17,3 @@ kubectl create namespace crossplane-system --dry-run=client -o yaml | kubectl ap
 
 echo "--- Create Secret containing the ARGOCD_API_TOKEN for Crossplane ArgoCD Provider"
 kubectl create secret generic argocd-credentials -n crossplane-system --from-literal=authToken="$ARGOCD_API_TOKEN"
-

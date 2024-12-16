@@ -13,4 +13,4 @@ data:
       - ProviderConfigUsage
   # add an additional local user with apiKey capabilities for provider-argocd
   # see https://github.com/crossplane-contrib/provider-argocd?tab=readme-ov-file#getting-started-and-documentation
-  accounts.provider-argocd: apiKey      
+  accounts.provider-argocd: apiKey
