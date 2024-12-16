@@ -51,7 +51,7 @@ jobs:
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
           # Access gh-actions service container:
           #endpoint_url = http://localstack:4566
-          endpoint_url = http://host.docker.internal:4566
+          #endpoint_url = http://host.docker.internal:4566
           " > aws-creds.conf
 
           echo "--- Create a namespace for crossplane"
