@@ -13,10 +13,10 @@ spec:
   source:
     repoURL: https://github.com/atrakic/go-static-site
     targetRevision: HEAD
-    path: deployment
+    path: charts/go-static-site
   destination:
     namespace: default
-    name: deploy-target-eks
+    server: https://kubernetes.default.svc
   syncPolicy:
     automated:
       prune: true    
