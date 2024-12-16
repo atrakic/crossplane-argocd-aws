@@ -56,7 +56,7 @@ jobs:
           echo "--- Wait shortly to let the port forward come available"
           sleep 1
 
-          bash create-argocd-api-token-secret.sh
+          bash ./scripts/create-argocd-api-token-secret.sh
 
       - name: Use ArgoCD's AppOfApps pattern to deploy all Crossplane components
         run: |
@@ -72,7 +72,11 @@ jobs:
           until kubectl get provider/upbound-provider-aws-s3 > /dev/null 2>&1; do : ; done
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
+          kubectl get providers
+          kubectl get managed
+
           kubectl get all -n crossplane-system
+          kubectl get buckets -n crossplane-system
 
       - name: AWS-cli status
         run: |
