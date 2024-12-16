@@ -73,10 +73,12 @@ jobs:
           until kubectl get provider/upbound-provider-aws-s3 > /dev/null 2>&1; do : ; done
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
-          kubectl get providers
-          kubectl get managed --all || true
-
           kubectl get all -n crossplane-system
+          
+      - name: Get crossplane resources
+        run: |
+          kubectl get providers
+          kubectl get managed || true
           kubectl get buckets -n crossplane-system -o yaml
 
       - name: AWS-cli status
