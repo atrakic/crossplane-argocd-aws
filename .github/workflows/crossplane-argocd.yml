@@ -23,6 +23,7 @@ jobs:
 
       - name: Spin up kinD
         run: |
+          kind --version
           kind create cluster --config kind/config.yaml
           kubectl get nodes
 
@@ -73,10 +74,10 @@ jobs:
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
           kubectl get providers
-          #kubectl get managed
+          kubectl get managed --all || true
 
           kubectl get all -n crossplane-system
-          kubectl get buckets -n crossplane-system
+          kubectl get buckets -n crossplane-system -o yaml
 
       - name: AWS-cli status
         run: |
@@ -93,3 +94,8 @@ jobs:
           kubectl get all,cm,sa -A
           kubectl get events --sort-by='.metadata.creationTimestamp' -A
           kubectl -n argocd logs --selector app.kubernetes.io/name=argocd-application-controller
+
+      - name: Cleanup
+        if: always()
+        run: |
+          kubectl delete managed --all || true
