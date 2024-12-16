@@ -41,6 +41,8 @@ jobs:
           echo "[default]
           aws_access_key_id = $AWS_ACCESS_KEY_ID
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
+          # Hack: access gh-actions service container:
+          endpoint_url = http://localstack:4567
           " > aws-creds.conf
 
           echo "--- Create a namespace for crossplane"
