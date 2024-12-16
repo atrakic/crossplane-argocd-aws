@@ -73,7 +73,7 @@ jobs:
           kubectl wait --for=condition=healthy --timeout=180s provider/upbound-provider-aws-s3
 
           kubectl get providers
-          kubectl get managed
+          #kubectl get managed
 
           kubectl get all -n crossplane-system
           kubectl get buckets -n crossplane-system
