@@ -15,7 +15,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/atrakic/crossplane-argocd
-    targetRevision: HEAD
+    targetRevision: fix/ci
     path: crossplane-contrib/provider-argocd/config
   destination:
     namespace: default

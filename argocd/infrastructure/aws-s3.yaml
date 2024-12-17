@@ -13,7 +13,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/atrakic/crossplane-argocd
-    targetRevision: HEAD
+    targetRevision: fix/ci
     path: infrastructure/s3
   destination:
     namespace: default
