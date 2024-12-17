@@ -1,32 +1,28 @@
-# The ArgoCD Application for crossplane core components themselves
+# The ArgoCD Application for all Crossplane Managed Resources
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: crossplane
+  name: aws-s3-localstack
   namespace: argocd
   labels:
-    crossplane.atrakic.io: crossplane
+    crossplane.atrakic.io: infrastructure
   finalizers:
     - resources-finalizer.argocd.argoproj.io
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"
 spec:
   project: default
   source:
     repoURL: https://github.com/atrakic/crossplane-argocd
     targetRevision: fix/ci
-    path: crossplane
+    path: infrastructure/localstack/s3
   destination:
+    namespace: default
     server: https://kubernetes.default.svc
-    namespace: crossplane-system
   syncPolicy:
     automated:
       prune: true
-    syncOptions:
-    - CreateNamespace=true
     retry:
-      limit: 1
+      limit: 5
       backoff:
         duration: 5s
         factor: 2

@@ -1,21 +1,17 @@
+# Bootstrap Crossplane with ArgoCD.
+# Uses LocalStack with Helm as underlying API to deploy AWS infrastructure.
 name: crossplane-argocd
 
 on: [push,pull_request,workflow_dispatch]
 
 env:
   AWS_DEFAULT_REGION: us-east-1
-  AWS_ACCESS_KEY_ID: localstack
-  AWS_SECRET_ACCESS_KEY: localstack
+  AWS_ACCESS_KEY_ID: test
+  AWS_SECRET_ACCESS_KEY: test
 
 jobs:
   ci:
     runs-on: ubuntu-latest
-
-    services:
-      localstack:
-        image: localstack/localstack
-        ports:
-          - 4566:4566
 
     steps:
       - name: Checkout
@@ -26,14 +22,6 @@ jobs:
           kind --version
           kind create cluster --config kind/config.yaml
           kubectl get nodes
-
-      # disabled
-      - name: Spin up localstack with helm
-        if: false
-        run: |
-          helm repo add crossplane-stable https://charts.crossplane.io/stable
-          helm repo update
-          helm install crossplane crossplane-stable/crossplane --namespace crossplane-system --create-namespace
 
       - name: Install ArgoCD into kind
         run: |
@@ -49,8 +37,7 @@ jobs:
           echo "[default]
           aws_access_key_id = $AWS_ACCESS_KEY_ID
           aws_secret_access_key = $AWS_SECRET_ACCESS_KEY
-          # Access gh-actions service container:
-          #endpoint_url = http://localstack:4566
+          #endpoint_url = http://localstack.default.svc:4566
           #endpoint_url = http://host.docker.internal:4566
           " > aws-creds.conf
 
@@ -86,13 +73,29 @@ jobs:
 
           kubectl get all -n crossplane-system
 
-      - name: Get crossplane resources
+      - name: Install LocalStack and AWS infra
+        run: |
+          helm repo add localstack-repo https://helm.localstack.cloud
+          helm upgrade --install localstack localstack-repo/localstack \
+            --namespace localstack --create-namespace
+
+          echo "--- Wait for LocalStack to become ready (now prefaced with until as described in https://stackoverflow.com/questions/68226288/kubectl-wait-not-working-for-creation-of-resources)"
+          until kubectl wait --for=condition=PodScheduled pod -l app.kubernetes.io/name=localstack --namespace localstack --timeout=120s > /dev/null 2>&1; do : ; done
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=localstack --namespace localstack --timeout=120s
+
+          echo "--- Install AWS infrastructure on LocalStack"
+          kubectl apply -f argocd/infrastructure/aws-s3-localstack.yaml
+
+      - name: Get Crossplane resources
         run: |
           kubectl get providers
+          kubectl get ProviderConfig -A
           kubectl get managed || true
           kubectl get buckets
 
+      # Disabled since we use localstack inside kinD
       - name: AWS-cli status
+        if: false
         run: |
           export AWS_PAGER=""
           export AWS_CONFIG_FILE=./aws-creds.conf

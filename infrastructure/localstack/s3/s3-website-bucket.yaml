@@ -1,0 +1,62 @@
+# https://github.com/crossplane-contrib/provider-upjet-aws/tree/main/examples-generated/s3
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: Bucket
+metadata:
+  name: localstack-crossplane-argocd-s3-website-bucket
+  # Error: Cannot use generate name with apply
+  #generateName: crossplane-argocd-s3-localstack-bucket-
+spec:
+  forProvider:
+    region: us-east-1
+  providerConfigRef:
+    name: localstack-aws
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketPublicAccessBlock
+metadata:
+  name: localstack-crossplane-argocd-s3-website-bucket-pab
+spec:
+  forProvider:
+    blockPublicAcls: false
+    blockPublicPolicy: false
+    ignorePublicAcls: false
+    restrictPublicBuckets: false
+    bucketRef:
+      name: localstack-crossplane-argocd-s3-website-bucket
+    region: us-east-1
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketOwnershipControls
+metadata:
+  name: localstack-crossplane-argocd-s3-website-bucket-osc
+spec:
+  forProvider:
+    rule:
+      - objectOwnership: ObjectWriter
+    bucketRef:
+      name: localstack-crossplane-argocd-s3-website-bucket
+    region: us-east-1
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketACL
+metadata:
+  name: localstack-crossplane-argocd-s3-website-bucket-acl
+spec:
+  forProvider:
+    acl: "public-read"
+    bucketRef:
+      name: localstack-crossplane-argocd-s3-website-bucket
+    region: us-east-1
+---
+apiVersion: s3.aws.upbound.io/v1beta1
+kind: BucketWebsiteConfiguration
+metadata:
+  name: localstack-crossplane-argocd-s3-website-bucket-bwc
+spec:
+  forProvider:
+    indexDocument:
+      - suffix: index.html
+    bucketRef:
+      name: localstack-crossplane-argocd-s3-website-bucket
+    region: us-east-1

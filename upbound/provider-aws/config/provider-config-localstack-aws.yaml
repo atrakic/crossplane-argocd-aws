@@ -1,0 +1,24 @@
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: localstack-aws
+spec:
+  credentials:
+    source: Secret
+    secretRef:
+      namespace: crossplane-system
+      # created manually (see ci):
+      name: aws-creds
+      key: creds
+  # workarround for LocalStack
+  # https://docs.localstack.cloud/user-guide/integrations/crossplane/
+  endpoint:
+    hostnameImmutable: true
+    services: [iam, s3, sqs, sts, lambda, dynamodb]
+    url:
+      type: Static
+      static: http://host.docker.internal:4566
+  skip_credentials_validation: true
+  skip_metadata_api_check: true
+  skip_requesting_account_id: true
+  s3_use_path_style: true
