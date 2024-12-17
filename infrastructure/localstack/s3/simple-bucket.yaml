@@ -1,9 +1,9 @@
 apiVersion: s3.aws.upbound.io/v1beta1
 kind: Bucket
 metadata:
-  name: crossplane-argocd-s3-bucket
+  generateName: crossplane-argocd-s3-localstack-bucket-
 spec:
   forProvider:
     region: us-east-1
   providerConfigRef:
-    name: default
+    name: localstack-aws

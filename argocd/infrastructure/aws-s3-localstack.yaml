@@ -3,7 +3,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: aws-s3
+  name: aws-s3-localstack
   namespace: argocd
   labels:
     crossplane.atrakic.io: infrastructure
@@ -13,8 +13,8 @@ spec:
   project: default
   source:
     repoURL: https://github.com/atrakic/crossplane-argocd
-    targetRevision: HEAD
-    path: infrastructure/s3
+    targetRevision: fix/ci
+    path: infrastructure/localstack/s3
   destination:
     namespace: default
     server: https://kubernetes.default.svc

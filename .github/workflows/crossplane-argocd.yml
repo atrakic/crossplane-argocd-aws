@@ -71,6 +71,14 @@ jobs:
 
           kubectl get all -n crossplane-system
 
+      - name: Install LocalStack and infra
+          helm repo add localstack-repo https://helm.localstack.cloud
+          helm upgrade --install localstack localstack-repo/localstack \
+            --namespace localstack --create-namespace
+
+          echo "--- Install AWS infrastructure on LocalStack"
+          kubectl apply -f argocd/infrastructure/aws-s3-localstack.yaml
+
       - name: Get Crossplane resources
         run: |
           kubectl get providers
