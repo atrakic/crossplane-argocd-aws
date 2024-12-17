@@ -10,7 +10,8 @@ spec:
       # created manually (see ci):
       name: aws-creds
       key: creds
-  # workarround for LocalStack URL
+  # workarround for LocalStack
+  # https://docs.localstack.cloud/user-guide/integrations/crossplane/
   endpoint:
     hostnameImmutable: true
     services: [iam, s3, sqs, sts]

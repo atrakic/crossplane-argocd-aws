@@ -1,7 +1,9 @@
 apiVersion: s3.aws.upbound.io/v1beta1
 kind: Bucket
 metadata:
-  generateName: crossplane-argocd-s3-localstack-bucket-
+  name: localstack-crossplane-argocd-s3-bucket
+  # Error: Cannot use generate name with apply
+  #generateName: crossplane-argocd-s3-localstack-bucket-
 spec:
   forProvider:
     region: us-east-1
