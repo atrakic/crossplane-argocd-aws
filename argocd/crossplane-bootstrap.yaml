@@ -13,7 +13,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/atrakic/crossplane-argocd
-    targetRevision: fix/ci
+    targetRevision: HEAD
     path: argocd/crossplane-bootstrap
   destination:
     server: https://kubernetes.default.svc
