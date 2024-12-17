@@ -14,7 +14,7 @@ spec:
   # https://docs.localstack.cloud/user-guide/integrations/crossplane/
   endpoint:
     hostnameImmutable: true
-    services: [iam, s3, sqs, sts]
+    services: [iam, s3, sqs, sts, lambda, dynamodb]
     url:
       type: Static
       static: http://host.docker.internal:4566
