@@ -6,12 +6,14 @@ spec:
   credentials:
     source: Secret
     secretRef:
-      name: localstack-aws-secret
-      namespace: default
+      namespace: crossplane-system
+      # created manually (see ci):
+      name: aws-creds
       key: creds
+  # workarround for LocalStack URL
   endpoint:
     hostnameImmutable: true
-    services: [iam, s3, sqs, sns, lambda, sts]
+    services: [iam, s3, sqs, sts]
     url:
       type: Static
       static: http://host.docker.internal:4566
