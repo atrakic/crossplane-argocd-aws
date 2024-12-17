@@ -74,6 +74,7 @@ jobs:
       - name: Get Crossplane resources
         run: |
           kubectl get providers
+          kubectl get ProviderConfig -A
           kubectl get managed || true
           kubectl get buckets
 
