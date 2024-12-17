@@ -1,3 +1,5 @@
+# Bootstrap Crossplane with ArgoCD.
+# Uses LocalStack with Helm as underlying API to deploy AWS infrastructure.
 name: crossplane-argocd
 
 on: [push,pull_request,workflow_dispatch]
@@ -71,11 +73,15 @@ jobs:
 
           kubectl get all -n crossplane-system
 
-      - name: Install LocalStack and infra
+      - name: Install LocalStack and AWS infra
         run: |
           helm repo add localstack-repo https://helm.localstack.cloud
           helm upgrade --install localstack localstack-repo/localstack \
             --namespace localstack --create-namespace
+
+          echo "--- Wait for LocalStack to become ready (now prefaced with until as described in https://stackoverflow.com/questions/68226288/kubectl-wait-not-working-for-creation-of-resources)"
+          until kubectl wait --for=condition=PodScheduled pod -l app.kubernetes.io/name=localstack --namespace localstack --timeout=120s > /dev/null 2>&1; do : ; done
+          kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=localstack --namespace localstack --timeout=120s
 
           echo "--- Install AWS infrastructure on LocalStack"
           kubectl apply -f argocd/infrastructure/aws-s3-localstack.yaml
