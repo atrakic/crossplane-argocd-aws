@@ -86,11 +86,18 @@ jobs:
           echo "--- Install AWS infrastructure on LocalStack"
           kubectl apply -f argocd/infrastructure/aws-s3-localstack.yaml
 
-      - name: Get Crossplane resources
+      - name: Crossplane resource status
         run: |
+          echo "--- Show crossplane overall status"
+          kubectl get crossplane
+
+          echo "-- Get overall provider status"
           kubectl get providers
+
           kubectl get ProviderConfig -A
           kubectl get managed || true
+
+          echo "--- Get buckets"
           kubectl get buckets
 
       # Disabled since we use localstack inside kinD
