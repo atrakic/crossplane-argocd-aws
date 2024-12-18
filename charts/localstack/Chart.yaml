@@ -1,0 +1,10 @@
+# Chart.yaml
+apiVersion: v2
+type: application
+name: localstack-argocd
+version: 0.0.0 # unused
+appVersion: 0.0.0 # unused
+dependencies:
+  - name: localstack
+    repository: https://helm.localstack.cloud
+    version: 0.6.18
