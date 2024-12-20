@@ -14,15 +14,18 @@ spec:
     repoURL: https://github.com/atrakic/go-static-site
     targetRevision: HEAD
     path: charts/go-static-site
+  helm:
+    #valueFiles:
+    #  - values.yaml
+    parameters:
+      - name: image.tag
+        value: main
+      #- name: storageclass
+      #  value: {{ .Values.storageClass }}
   destination:
-    namespace: default
-    server: https://kubernetes.default.svc
+    namespace: go-static-site
+    server: 'https://kubernetes.default.svc'
   syncPolicy:
-    automated:
-      prune: true
-    retry:
-      limit: 5
-      backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 1m
+    automated: {}
+      syncOptions:
+        - CreateNamespace=true
